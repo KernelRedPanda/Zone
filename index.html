@@ -28,8 +28,12 @@
       const [newProduct, setNewProduct] = useState({ name: "", price: "" });
 
       const handleLogin = (cred) => {
-        const userInfo = JSON.parse(atob(cred.credential.split('.')[1]));
-        setUser(userInfo);
+        try {
+          const userInfo = JSON.parse(atob(cred.credential.split('.')[1]));
+          setUser(userInfo);
+        } catch (e) {
+          alert("Login failed");
+        }
       };
 
       const filteredProducts = products.filter(p =>
@@ -37,6 +41,7 @@
       );
 
       const handleAddProduct = () => {
+        if (!newProduct.name || !newProduct.price) return;
         const id = products.length + 1;
         setProducts([...products, { id, ...newProduct, price: parseFloat(newProduct.price) }]);
         setNewProduct({ name: "", price: "" });
@@ -54,7 +59,7 @@
       return (
         <div>
           <header className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold">Mini Amazon</h1>
+            <h1 className="text-2xl font-bold">Welcome, {user.name || user.email}</h1>
             <div className="space-x-2">
               <button className={`px-3 py-1 rounded ${role === 'buyer' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`} onClick={() => setRole('buyer')}>Buyer</button>
               <button className={`px-3 py-1 rounded ${role === 'seller' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`} onClick={() => setRole('seller')}>Seller</button>
@@ -70,47 +75,4 @@
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {filteredProducts.map(p => (
-                  <div key={p.id} className="border p-4 rounded bg-white shadow">
-                    <h2 className="font-semibold text-lg">{p.name}</h2>
-                    <p>${p.price}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {role === "seller" && (
-            <div className="space-y-4">
-              <input
-                className="border p-2 w-full"
-                type="text"
-                placeholder="Product Name"
-                value={newProduct.name}
-                onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-              />
-              <input
-                className="border p-2 w-full"
-                type="number"
-                placeholder="Price"
-                value={newProduct.price}
-                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-              />
-              <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleAddProduct}>
-                Add Product
-              </button>
-            </div>
-          )}
-        </div>
-      );
-    }
-
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      <GoogleOAuthProvider clientId="517006372649-4arlp41fv9ajso59g3ikrl5qs6k502df.apps.googleusercontent.com">
-        <App />
-      </GoogleOAuthProvider>
-    );
-  </script>
-</body>
-</html>
